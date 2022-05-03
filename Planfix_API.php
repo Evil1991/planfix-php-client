@@ -16,7 +16,7 @@ namespace Evil1993\PlanfixPhpClient;
 /**
  * Exception overriding for better catchability.
  */
-class Planfix_API_Exception extends Exception {}
+class Planfix_API_Exception extends \Exception {}
 
 /**
  * Main class with all the magic.
