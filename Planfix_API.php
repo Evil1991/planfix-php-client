@@ -11,6 +11,8 @@
  * @version 1.0.1
  */
 
+namespace Evil1993\PlanfixPhpClient;
+
 /**
  * Exception overriding for better catchability.
  */
