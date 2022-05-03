@@ -282,7 +282,7 @@ class Planfix_API {
         $userPassword = $this->getUserPassword();
 
         if (!($userLogin && $userPassword)) {
-            throw new Planfix_API_Exception('User credentials are not set');
+            throw new \Planfix_API_Exception('User credentials are not set');
         }
 
         $requestXml = $this->createXml();
@@ -297,7 +297,7 @@ class Planfix_API {
         $response = $this->makeRequest($requestXml);
 
         if (!$response['success']) {
-            throw new Planfix_API_Exception('Unable to authenticate: '.$response['error_str']);
+            throw new \Planfix_API_Exception('Unable to authenticate: '.$response['error_str']);
         }
 
         $this->setSid($response['data']['sid']);
@@ -315,7 +315,7 @@ class Planfix_API {
      */
     public function api($method, $params = '') {
         if (!$method) {
-            throw new Planfix_API_Exception('No method specified');
+            throw new \Planfix_API_Exception('No method specified');
         } elseif (is_array($method)) {
             if (isset($method['method'])) {
                 $params = isset($method['params']) ? $method['params'] : '';
@@ -323,7 +323,7 @@ class Planfix_API {
             } else {
                 foreach($method as $request) {
                     if (!isset($request['method'])) {
-                        throw new Planfix_API_Exception('No method specified');
+                        throw new \Planfix_API_Exception('No method specified');
                     }
                 }
             }
@@ -388,12 +388,12 @@ class Planfix_API {
      * @return SimpleXMLElement the XML request
      */
     protected function createXml() {
-        $requestXml = new SimpleXMLElement('<?xml version="1.0" encoding="UTF-8"?><request></request>');
+        $requestXml = new \SimpleXMLElement('<?xml version="1.0" encoding="UTF-8"?><request></request>');
 
         $account = $this->getAccount();
 
         if (!$account) {
-            throw new Planfix_API_Exception('Account is not set');
+            throw new \Planfix_API_Exception('Account is not set');
         }
 
         $requestXml->account = $account;
@@ -411,7 +411,7 @@ class Planfix_API {
     protected function importParams($requestXml, $params) {
         foreach($params as $key => $val) {
             if (is_array($val)) {
-                $requestXml->$key = new SimpleXMLElement("<$key/>");
+                $requestXml->$key = new \SimpleXMLElement("<$key/>");
                 foreach($val as $key2 => $val2) {
                     if (is_array($val2)) {
                         $this->importParams($requestXml->$key, $val2);
@@ -574,8 +574,8 @@ class Planfix_API {
         }
 
         try {
-            $responseXml = new SimpleXMLElement($response);
-        } catch (Exception $e) {
+            $responseXml = new \SimpleXMLElement($response);
+        } catch (\Exception $e) {
             $result['success'] = 0;
             $result['error_str'] = $e->getMessage();
             return $result;
