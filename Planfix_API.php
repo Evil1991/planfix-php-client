@@ -37,13 +37,13 @@ class Planfix_API {
      * Default Curl options
      */
     public static $CURL_OPTS = array(
-        CURLOPT_CONNECTTIMEOUT    => 10,
+        CURLOPT_CONNECTTIMEOUT    => 40,
         CURLOPT_RETURNTRANSFER    => 1,
-        CURLOPT_TIMEOUT           => 60,
+        CURLOPT_TIMEOUT           => 150,
         CURLOPT_SSL_VERIFYPEER    => 0,
         CURLOPT_SSL_VERIFYHOST    => 0,
         CURLOPT_FOLLOWLOCATION    => 1,
-        CURLOPT_POSTREDIR         => 1
+        CURLOPT_POSTREDIR         => 1,
     );
 
     /**
@@ -111,6 +111,8 @@ class Planfix_API {
      * @param array $config The array containing required parameters
      */
     public function __construct($config) {
+        ini_set('max_execution_time', 9600);
+        error_reporting(0);
         $this->setApiUrl($config['apiUrl']);
         $this->setApiKey($config['apiKey']);
         $this->setApiSecret($config['apiSecret']);
@@ -282,7 +284,7 @@ class Planfix_API {
         $userPassword = $this->getUserPassword();
 
         if (!($userLogin && $userPassword)) {
-            throw new \Planfix_API_Exception('User credentials are not set');
+            throw new Planfix_API_Exception('User credentials are not set');
         }
 
         $requestXml = $this->createXml();
@@ -297,7 +299,7 @@ class Planfix_API {
         $response = $this->makeRequest($requestXml);
 
         if (!$response['success']) {
-            throw new \Planfix_API_Exception('Unable to authenticate: '.$response['error_str']);
+            throw new Planfix_API_Exception('Unable to authenticate: '.$response['error_str']);
         }
 
         $this->setSid($response['data']['sid']);
@@ -315,7 +317,7 @@ class Planfix_API {
      */
     public function api($method, $params = '') {
         if (!$method) {
-            throw new \Planfix_API_Exception('No method specified');
+            throw new Planfix_API_Exception('No method specified');
         } elseif (is_array($method)) {
             if (isset($method['method'])) {
                 $params = isset($method['params']) ? $method['params'] : '';
@@ -323,11 +325,13 @@ class Planfix_API {
             } else {
                 foreach($method as $request) {
                     if (!isset($request['method'])) {
-                        throw new \Planfix_API_Exception('No method specified');
+                        throw new Planfix_API_Exception('No method specified');
                     }
                 }
             }
         }
+        file_put_contents ( '/var/www/admin/bux/planfix_log.log', (string)date("Y-m-d H:i:s") . PHP_EOL, FILE_APPEND);
+        file_put_contents ( '/var/www/admin/bux/planfix_log.log' , is_array($params) ? (string)json_encode($method) . PHP_EOL .(string)json_encode($params) . PHP_EOL : (string)json_encode($method) . PHP_EOL, FILE_APPEND);
 
         $sid = $this->getSid();
 
@@ -335,6 +339,7 @@ class Planfix_API {
             $this->authenticate();
             $sid = $this->getSid();
         }
+
 
         if (is_array($method)) {
             $batch = array();
@@ -393,7 +398,7 @@ class Planfix_API {
         $account = $this->getAccount();
 
         if (!$account) {
-            throw new \Planfix_API_Exception('Account is not set');
+            throw new Planfix_API_Exception('Account is not set');
         }
 
         $requestXml->account = $account;
@@ -408,22 +413,19 @@ class Planfix_API {
      * @param array Parameters
      * @return SimpleXMLElement the XML request
      */
-    protected function importParams($requestXml, $params) {
-        foreach($params as $key => $val) {
-            if (is_array($val)) {
-                $requestXml->$key = new \SimpleXMLElement("<$key/>");
-                foreach($val as $key2 => $val2) {
-                    if (is_array($val2)) {
-                        $this->importParams($requestXml->$key, $val2);
-                    } else {
-                        $requestXml->$key->addChild($key2, $val2);
-                    }
+    protected function importParams( &$xml_data, $data ) {
+        foreach( $data as $key => $value ) {
+            if( is_array($value) ) {
+                if( is_numeric($key) ){
+                    $this->importParams($xml_data, $value);
+                } else {
+                    $subnode = $xml_data->addChild("$key");
+                    $this->importParams($subnode, $value);
                 }
             } else {
-                $requestXml->addChild($key, $val);
+                $xml_data->addChild("$key", "$value");
             }
         }
-        return $requestXml;
     }
 
     /**
@@ -471,7 +473,10 @@ class Planfix_API {
     protected function makeBatchRequest($batch) {
         $mh = curl_multi_init();
 
+
+
         $batchCnt = count($batch);
+        //  var_dump($batch);
         $max_size = $batchCnt < self::$MAX_BATCH_SIZE ? $batchCnt : self::$MAX_BATCH_SIZE;
 
         $batchResult = array();
@@ -575,7 +580,7 @@ class Planfix_API {
 
         try {
             $responseXml = new \SimpleXMLElement($response);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $result['success'] = 0;
             $result['error_str'] = $e->getMessage();
             return $result;
@@ -597,9 +602,11 @@ class Planfix_API {
             }
 
             if ($result['meta'] == null || $result['meta']['totalCount'] || $result['meta']['count']) {
-                $result['data'] = $this->exportData($responseXml);
+                $result['data'] = $responseXml;
             }
         }
+
+        file_put_contents ( '/var/www/admin/bux/planfix_log.log' ,  (string)json_encode($result) . PHP_EOL, FILE_APPEND);
 
         return $result;
     }
