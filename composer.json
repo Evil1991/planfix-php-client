@@ -1,13 +1,13 @@
 {
-  "name": "evil1991/planfix_php_client",
-  "description": "PHP Planfix client (Planfix_API) v.1.0.1",
-  "version": "1.0.1",
+  "name": "evil1991/planfix_client",
+  "description": "PHP Planfix client v.0.0.1",
+  "version": "0.0.1",
   "type": "library",
   "license": "MIT",
   "autoload": {
-    "psr-4": {"Evil1993\\PlanfixPhpClient\\": ""}
+    "psr-4": {"Evil1991\\PlanfixClient\\": "src"}
   },
   "require": {
-    "php": ">=5.6"
+    "php": ">=7.4"
   }
 }
