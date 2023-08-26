@@ -4,7 +4,7 @@ namespace Evil1991\PlanfixClient;
 
 use Evil1991\PlanfixClient\Client\PlanfixRestClient;
 use Evil1991\PlanfixClient\Client\PlanfixXmlClient;
-use Evil1991\PlanfixClient\Contract\PlafixClient as PlanfixClientInterface;
+use Evil1991\PlanfixClient\Contract\PlanfixClient as PlanfixClientInterface;
 use Evil1991\PlanfixClient\Exception\ClientException;
 
 class PlanfixClient
