@@ -4,7 +4,7 @@ namespace Evil1991\PlanfixClient\Contract;
 
 use Illuminate\Http\Client\Response;
 
-interface PlafixClient
+interface PlanfixClient
 {
     /**
      * Преобразование ответа в массив
