@@ -2,11 +2,11 @@
 
 namespace Evil1991\PlanfixClient\Client;
 
-use Evil1991\PlanfixClient\Contract\PlafixClient;
+use Evil1991\PlanfixClient\Contract\PlanfixClient;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 
-class PlanfixRestClient implements PlafixClient
+class PlanfixRestClient implements PlanfixClient
 {
     private $url;
 
