@@ -2,13 +2,13 @@
 
 namespace Evil1991\PlanfixClient\Client;
 
-use Evil1991\PlanfixClient\Contract\PlafixClient;
+use Evil1991\PlanfixClient\Contract\PlanfixClient;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 use SimpleXMLElement;
 use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 
-class PlanfixXmlClient implements PlafixClient
+class PlanfixXmlClient implements PlanfixClient
 {
     private $url = 'https://apiru.planfix.ru/xml';
     private $key;
