@@ -6,10 +6,10 @@ use Exception;
 
 class ClientException extends Exception
 {
-    public function render($message)
+    public function render()
     {
         return response('', 500)->json([
-            'error' => $message,
+            'error' => $this->getMessage(),
         ]);
     }
 }

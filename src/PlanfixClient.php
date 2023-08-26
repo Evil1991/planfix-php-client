@@ -11,14 +11,6 @@ class PlanfixClient
 {
     public static function createClient(string $type, array $params = []) : PlanfixClientInterface
     {
-        try {
-            throw new ClientException('TEST EXCEPTION');
-        } catch (ClientException $e) {
-            $exception = $e;
-        }
-
-        
-
         switch($type)
         {
             case 'xml':

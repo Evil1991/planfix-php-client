@@ -18,6 +18,14 @@ class PlanfixXmlClient implements PlanfixClient
     private $password;
     private $sid;
 
+    /**
+     * @param array $params
+     * - key - ключ API
+     * - secret - секретный ключ
+     * - account - аккаунт
+     * - login - логин
+     * - password - пароль
+     */
     public function __construct(array $params = [])
     {
         $this->key = $params['key'];
@@ -136,13 +144,13 @@ class PlanfixXmlClient implements PlanfixClient
 
     public function send($params = []): array
     {
-        if(!isset($params['method']) || !isset($params['action'])) {
+        if(!isset($params['action'])) {
             return $this->response();
         }
 
         $this->auth();
 
-        $xml = $this->createXml($params['method']);
+        $xml = $this->createXml($params['action']);
         $xml->sid = $this->sid;
 
         if(isset($params['fields']) && is_array($params['fields'])) {
@@ -155,11 +163,30 @@ class PlanfixXmlClient implements PlanfixClient
     public function response(Response $response = null): array
     {
         if ($response && $response->successful()) {
-            $return = $response->json();
+            
+            $xml = new SimpleXMLElement($response->body());
+            $result = json_decode(json_encode($xml), true);
+
+            $params = $result['@attributes'];
+            unset($result['@attributes']);
+
+            $return = $result;
+
+            if($params['status'] === 'error') { 
+                $return = [
+                    'result' => 'error',
+                    'error' => 'Error. Message: ' . $result['message'] . '. Code: ' . $result['code'],
+                    'response' => $response
+                ];
+            } else {
+                $return['result'] = 'success';
+            }
+            
         } else {
             $return = [
                 'result' => 'error',
-                'error' => 'Request error'
+                'error' => 'Request error 2',
+                'response' => $response
             ];
         }
 
